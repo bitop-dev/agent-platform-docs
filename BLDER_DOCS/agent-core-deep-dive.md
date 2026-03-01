@@ -722,11 +722,10 @@ agent-core/
 │   │   ├── subprocess.go      # Subprocess tool runner (stdin/stdout JSON)
 │   │   └── sandbox.go         # Sandbox policy (paths, env allowlist, timeout, output cap)
 │   ├── mcp/
-│   │   ├── client.go          # MCP client (connect, handshake, tool list)
-│   │   ├── transport_stdio.go # stdio transport (spawn local process)
-│   │   ├── transport_http.go  # HTTP transport
-│   │   ├── transport_sse.go   # SSE transport (streaming)
-│   │   └── tool_adapter.go    # MCP tool → Tool interface adapter
+│   │   ├── protocol.go        # JSON-RPC 2.0 + MCP protocol types
+│   │   ├── transport.go       # StdioTransport + HTTPTransport (SSE support)
+│   │   ├── client.go          # MCP client (connect, handshake, tool list, tool call)
+│   │   └── adapter.go         # ToolAdapter (MCP → tool.Tool) + RegisterAll
 │   ├── models/
 │   │   ├── catalog.go         # Model registry (context windows, costs, capabilities)
 │   │   └── cost.go            # CostTracker — accumulates USD cost across a run

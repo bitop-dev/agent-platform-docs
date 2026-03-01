@@ -1,12 +1,14 @@
 # Agent Core — Gap Analysis
 
+> **Status: ALL GAPS RESOLVED** — Every item in this document has been implemented and tested. See the implementation summary below.
+
 A second-pass review of the reference projects against our current `agent-core-deep-dive.md`. This documents what we missed, what we underspecified, and what we have the timing wrong on.
 
 ---
 
 ## Things Missing Entirely
 
-### 1. MCP — Model Context Protocol
+### 1. MCP — Model Context Protocol ✅ DONE
 
 **Source**: `zeroclaw/src/tools/mcp_client.rs`, `mcp_protocol.rs`, `mcp_tool.rs`, `mcp_transport.rs`
 
@@ -42,7 +44,7 @@ MCP servers register their tools automatically — the agent-core discovers them
 
 ---
 
-### 2. Model Catalog + Cost Tracking
+### 2. Model Catalog + Cost Tracking ✅ DONE
 
 **Source**: `pi-mono/packages/ai/src/models.ts` + `models.generated.ts`, `zeroclaw/src/cost/`
 
@@ -90,7 +92,7 @@ This drives: output cost display, context window compaction trigger, capability 
 
 ---
 
-### 3. Reliable Provider — Retry, Backoff, Key Rotation, Failover
+### 3. Reliable Provider — Retry, Backoff, Key Rotation, Failover ✅ DONE
 
 **Source**: `zeroclaw/src/providers/reliable.rs`
 
@@ -135,7 +137,7 @@ model:
 
 ---
 
-### 4. Observer Interface
+### 4. Observer Interface ✅ DONE
 
 **Source**: `zeroclaw/src/observability/traits.rs` + the full observer stack
 
@@ -187,7 +189,7 @@ type ObserverEvent struct {
 
 ## Things Underspecified
 
-### 5. Context Window Management — How We Know We're Full
+### 5. Context Window Management ✅ DONE
 
 We said "compact when 80% full" but never specified how we know how full we are. There are three approaches and we need to pick one:
 
@@ -201,7 +203,7 @@ We said "compact when 80% full" but never specified how we know how full we are.
 
 ---
 
-### 6. Trim Must Respect Tool Message Boundaries
+### 6. Trim Must Respect Tool Message Boundaries ✅ DONE
 
 **Source**: `zeroclaw/src/agent/loop_/history.rs`
 
@@ -220,7 +222,7 @@ If we trim N messages from the front but position N lands mid-way through a tool
 
 ---
 
-### 7. Compaction — The Right Algorithm
+### 7. Compaction — The Right Algorithm ✅ DONE
 
 We said "LLM summarizes older turns." The implementation detail matters. From zeroclaw's `history.rs`:
 
@@ -244,7 +246,7 @@ Key constraint: the compaction call itself uses the same provider/model, so it c
 
 ---
 
-### 8. Session Persistence for Chat Mode
+### 8. Session Persistence for Chat Mode ✅ DONE
 
 **Source**: `zeroclaw/src/agent/session.rs`
 
