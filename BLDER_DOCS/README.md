@@ -31,6 +31,7 @@ A web portal where users can:
 | [agent-core-deep-dive.md](agent-core-deep-dive.md) | Comprehensive agent-core design with Go code, CLI, directory structure |
 | [agent-core-gaps.md](agent-core-gaps.md) | Gap analysis from second-pass reference project review |
 | [skill-registry-deep-dive.md](skill-registry-deep-dive.md) | Skill system gaps from zeroclaw/openclaw analysis; build order |
+| [tools-deep-dive.md](tools-deep-dive.md) | Three-tier tool system: core tools, skill tools, MCP; subprocess protocol; sandboxing |
 
 ---
 

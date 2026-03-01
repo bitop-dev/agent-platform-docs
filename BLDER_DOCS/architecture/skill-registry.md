@@ -22,7 +22,7 @@ skills/
     ├── SKILL.md          ← frontmatter metadata + agent instructions
     └── tools/
         ├── gh_list_issues.json   ← Tool input schema (JSON Schema)
-        └── gh_list_issues.sh     ← Tool implementation (bash/python/wasm)
+        └── gh_list_issues.sh     ← Tool implementation (bash, python, compiled binary)
 ```
 
 No separate `skill.json` — all metadata lives in `SKILL.md` frontmatter.
@@ -185,8 +185,10 @@ Skill tools are implemented as external processes — language agnostic, communi
 |---|---|
 | Shell (`.sh`) | Bash script; reads JSON from stdin, writes JSON to stdout |
 | Python (`.py`) | Python script; same stdin/stdout protocol |
-| Binary | Any compiled binary; same protocol |
-| WASM (`.wasm`) | Compiled WASM; better sandboxing (Phase 2) |
+| Ruby (`.rb`) | Ruby script; same protocol |
+| Binary (no ext) | Any compiled binary (Go, Rust, C, etc.); same protocol |
+
+Any language that can read stdin and write stdout works. See [tools-deep-dive.md](../tools-deep-dive.md) for the full protocol spec, sandboxing constraints, and examples in bash, Python, and Go.
 
 ### Built-in Platform Tools
 

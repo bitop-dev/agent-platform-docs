@@ -464,33 +464,20 @@ skills:
   - path: ./skills/summarize/SKILL.md
 
 # Tools available to the agent
+# Absence of a tool from core: = disabled. bash is opt-out (on by default).
+# Skill tools are automatically available when a skill is listed under skills:.
 tools:
-  # Built-in tools
-  - name: bash
-    enabled: true
-    config:
-      allowed_paths: ["./workspace"]
+  core:
+    bash:
       timeout_seconds: 30
-
-  - name: http_request
-    enabled: true
-    config:
-      allowed_hosts: ["api.github.com"]
-
-  # External tool (subprocess)
-  - name: github_issues
-    type: subprocess
-    command: "./tools/github_issues.sh"
-    description: "List GitHub issues for a repository"
-    parameters_schema: |
-      {
-        "type": "object",
-        "properties": {
-          "repo": { "type": "string" },
-          "state": { "type": "string", "enum": ["open", "closed", "all"] }
-        },
-        "required": ["repo"]
-      }
+      # enabled: false   ← uncomment to remove shell access entirely
+    read_file: {}
+    write_file: {}
+    edit_file: {}
+    list_dir: {}
+    grep: {}
+    http_fetch:
+      allowed_hosts: ["api.github.com"]   # omit key for unrestricted
 
 # MCP servers (Model Context Protocol — external tool servers)
 mcp_servers:
@@ -695,14 +682,17 @@ agent-core/
 │   │   ├── ollama.go          # Ollama (local) implementation
 │   │   └── registry.go        # Provider registry (name → factory)
 │   ├── tool/
-│   │   ├── tool.go            # Tool interface + ToolEngine
+│   │   ├── tool.go            # Tool interface + ToolEngine (parallel dispatch)
 │   │   ├── builtin/
-│   │   │   ├── bash.go        # Built-in bash tool
-│   │   │   ├── http.go        # Built-in HTTP request tool
-│   │   │   ├── file.go        # Built-in file read/write tools
-│   │   │   └── web_search.go  # Built-in web search
+│   │   │   ├── bash.go        # bash — opt-out, subprocess with timeout
+│   │   │   ├── read_file.go   # read_file — offset/limit support
+│   │   │   ├── write_file.go  # write_file — creates parent dirs
+│   │   │   ├── edit_file.go   # edit_file — exact text replacement
+│   │   │   ├── list_dir.go    # list_dir — name, type, size, modified
+│   │   │   ├── grep.go        # grep — regex with context lines
+│   │   │   └── http_fetch.go  # http_fetch — raw GET/POST, allowed_hosts
 │   │   ├── subprocess.go      # Subprocess tool runner (stdin/stdout JSON)
-│   │   └── sandbox.go         # Sandbox policy (paths, network, timeout)
+│   │   └── sandbox.go         # Sandbox policy (paths, env allowlist, timeout, output cap)
 │   ├── mcp/
 │   │   ├── client.go          # MCP client (connect, handshake, tool list)
 │   │   ├── transport_stdio.go # stdio transport (spawn local process)
@@ -761,15 +751,17 @@ Build in this order — each adds more capability:
 
 ## Built-in Tool Priority
 
-Build in this order:
+Build in this order. `bash` is opt-out — on by default. `web_search` and `web_fetch` are **skill tools**, not built-ins; they live in the `skills` repo.
 
-| Priority | Tool | Rationale |
+| Priority | Tool | Notes |
 |---|---|---|
-| 1 | `bash` | Most flexible. Run any command. Essential for coding/devops agents. |
-| 2 | `http_request` | Call any API. Enables most integration use cases. |
-| 3 | `file_read` / `file_write` | Read/write local files. Needed for almost any useful agent. |
-| 4 | `web_search` | Search the web (via SerpAPI/Brave/DDG). Very common agent need. |
-| 5 | `web_fetch` | Fetch and extract content from URLs. |
+| 1 | `bash` | Opt-out. Most flexible — covers anything without a specialized tool. |
+| 2 | `read_file` | Offset + limit support. Needed for almost any agent. |
+| 3 | `write_file` | Creates parent dirs. |
+| 4 | `edit_file` | Surgical replace. Preferred over write for small changes. |
+| 5 | `list_dir` | Name, type, size, modified time. |
+| 6 | `grep` | Regex search with context lines. |
+| 7 | `http_fetch` | Raw HTTP GET/POST. No content extraction (that's the `web_fetch` skill). |
 
 ---
 
@@ -887,7 +879,7 @@ The core does one thing well: **take a config, take a mission, run an agent, emi
 
 **Week 2 — Tools, skills, session:**
 10. `Tool` interface + `ToolEngine` with parallel execution
-11. Built-in tools: `bash`, `http_request`, `file_read`, `file_write`
+11. Built-in tools: `bash` (opt-out), `read_file`, `write_file`, `edit_file`, `list_dir`, `grep`, `http_fetch`
 12. Subprocess tool runner (external tools via stdin/stdout JSON)
 13. Tool sandboxing: path scope, network allowlist, timeout
 14. Tool calling in the loop (native + prompt-guided fallback, tool message boundary guard)

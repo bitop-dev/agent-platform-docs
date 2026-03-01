@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #f8f9fa; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="rough.js"></script>
+<script>
+// Minimal Excalidraw element renderer.
+// window.__EXCALIDRAW_DATA__ must be set before this script runs.
+
+const PAD = 40;
+
+function getBounds(elements) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const el of elements) {
+    if (el.isDeleted) continue;
+    const x1 = el.x ?? 0;
+    const y1 = el.y ?? 0;
+    const x2 = x1 + (el.width ?? 0);
+    const y2 = y1 + (el.height ?? 0);
+    // For arrows, check points too
+    if (el.type === "arrow" && el.points) {
+      for (const [px, py] of el.points) {
+        minX = Math.min(minX, x1 + px);
+        minY = Math.min(minY, y1 + py);
+        maxX = Math.max(maxX, x1 + px);
+        maxY = Math.max(maxY, y1 + py);
+      }
+    }
+    minX = Math.min(minX, x1); minY = Math.min(minY, y1);
+    maxX = Math.max(maxX, x2); maxY = Math.max(maxY, y2);
+  }
+  return { minX, minY, maxX, maxY };
+}
+
+function render(data) {
+  const elements = (data.elements || []).filter(e => !e.isDeleted);
+  const bg = data.appState?.viewBackgroundColor || "#f8f9fa";
+
+  const { minX, minY, maxX, maxY } = getBounds(elements);
+  const W = maxX - minX + PAD * 2;
+  const H = maxY - minY + PAD * 2;
+  const offX = -minX + PAD;
+  const offY = -minY + PAD;
+
+  const canvas = document.getElementById("c");
+  const scale = window.devicePixelRatio || 1;
+  canvas.style.width  = W + "px";
+  canvas.style.height = H + "px";
+  canvas.width  = W * scale;
+  canvas.height = H * scale;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  // Background
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const rc = rough.canvas(canvas);
+
+  // Draw each element in order
+  for (const el of elements) {
+    const x = (el.x ?? 0) + offX;
+    const y = (el.y ?? 0) + offY;
+    const w = el.width ?? 0;
+    const h = el.height ?? 0;
+    const stroke = el.strokeColor || "#1e1e1e";
+    const fill   = el.backgroundColor === "transparent" ? "none" : (el.backgroundColor || "none");
+    const rough  = el.roughness ?? 1;
+    const sw     = el.strokeWidth ?? 2;
+    const dash   = el.strokeStyle === "dashed" ? [8, 4] : undefined;
+
+    const opts = {
+      stroke, fill, fillStyle: "solid",
+      roughness: rough, strokeWidth: sw,
+      ...(dash ? { strokeLineDash: dash } : {}),
+    };
+
+    if (el.type === "rectangle") {
+      if (el.roundness) {
+        // Rounded rectangle — draw manually with path
+        ctx.save();
+        const r = Math.min(8, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+        if (fill !== "none") { ctx.fillStyle = fill; ctx.fill(); }
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = sw;
+        if (dash) ctx.setLineDash(dash);
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        rc.rectangle(x, y, w, h, { ...opts, roughness: 0 });
+      }
+    } else if (el.type === "arrow") {
+      const pts = el.points || [[0,0],[w,h]];
+      const abs = pts.map(([px, py]) => [x + px, y + py]);
+
+      ctx.save();
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = sw;
+      ctx.setLineDash(dash || []);
+      ctx.beginPath();
+
+      // Draw path segments
+      ctx.moveTo(abs[0][0], abs[0][1]);
+      if (abs.length === 2) {
+        ctx.lineTo(abs[1][0], abs[1][1]);
+      } else {
+        // Curved path through midpoints
+        for (let i = 1; i < abs.length - 1; i++) {
+          const mx = (abs[i][0] + abs[i+1][0]) / 2;
+          const my = (abs[i][1] + abs[i+1][1]) / 2;
+          ctx.quadraticCurveTo(abs[i][0], abs[i][1], mx, my);
+        }
+        ctx.lineTo(abs[abs.length-1][0], abs[abs.length-1][1]);
+      }
+      ctx.stroke();
+
+      // Arrowhead
+      if (el.endArrowhead === "arrow") {
+        const last = abs[abs.length - 1];
+        const prev = abs[abs.length - 2];
+        const angle = Math.atan2(last[1] - prev[1], last[0] - prev[0]);
+        const aLen = 12;
+        const aAngle = Math.PI / 6;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(last[0], last[1]);
+        ctx.lineTo(
+          last[0] - aLen * Math.cos(angle - aAngle),
+          last[1] - aLen * Math.sin(angle - aAngle)
+        );
+        ctx.moveTo(last[0], last[1]);
+        ctx.lineTo(
+          last[0] - aLen * Math.cos(angle + aAngle),
+          last[1] - aLen * Math.sin(angle + aAngle)
+        );
+        ctx.stroke();
+      }
+      ctx.restore();
+
+    } else if (el.type === "text") {
+      if (!el.text || el.text.trim() === "") continue;
+      ctx.save();
+      const fontSize = el.fontSize || 16;
+      const fontFamily = el.fontFamily === 3 ? "monospace" : (el.fontFamily === 2 ? "Georgia, serif" : "Segoe UI, system-ui, sans-serif");
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.fillStyle = stroke;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+
+      const lines = el.text.split("\n");
+      const lineH = fontSize * 1.25;
+      const totalH = lines.length * lineH;
+      const startY = y + (h - totalH) / 2 + lineH / 2;
+
+      lines.forEach((line, i) => {
+        ctx.fillText(line, x + w / 2, startY + i * lineH);
+      });
+      ctx.restore();
+    }
+  }
+
+  // Signal done
+  window.__RENDER_DONE__ = true;
+}
+
+// Wait for data to be injected
+(function poll() {
+  if (window.__EXCALIDRAW_DATA__) {
+    render(window.__EXCALIDRAW_DATA__);
+  } else {
+    setTimeout(poll, 10);
+  }
+})();
+</script>
+</body>
+</html>

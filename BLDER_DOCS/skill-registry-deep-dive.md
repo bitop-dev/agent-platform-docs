@@ -65,7 +65,7 @@ Fifty-plus production skills. The patterns here are battle-tested at scale.
    [[tools]]
    name = "get_weather"
    description = "Fetch current weather"
-   kind = "shell"          # shell | http | wasm
+   kind = "shell"          # shell | http (zeroclaw-specific; we use subprocess for all)
    command = "curl wttr.in/${location}?format=j1"
    ```
 
@@ -77,8 +77,8 @@ Fifty-plus production skills. The patterns here are battle-tested at scale.
 3. **Security audit before install** — Before installing any skill, run: path traversal check, zip bomb detection, dangerous pattern scan. Installation fails if audit fails.
 
 4. **Skill scaffolding** — `skill new <name> --template <type>` generates a complete runnable skill project:
-   - Templates: TypeScript (→ WASM via Javy), Rust (→ WASM via wasm32-wasip1), Go (→ WASM via TinyGo), Python (→ WASM via componentize-py)
-   - Every template includes SKILL.md, manifest, gitignore, and language-specific build files
+   - Templates: `bash`, `python`, `go` (compiled binary)
+   - Every template includes SKILL.md, the tool schema JSON, the tool implementation, and a README
 
 5. **Multiple install sources with source detection**:
    - `./local/path` — local directory
@@ -88,7 +88,7 @@ Fifty-plus production skills. The patterns here are battle-tested at scale.
    - `namespace/name@version` — registry package
    - `clawhub:skill-name` — dedicated skill marketplace
 
-6. **WASM tools** — Tools compile to `.wasm` and run via wasmtime. Same stdin/stdout JSON protocol as subprocess tools, but with: no filesystem access by default, no network, execution time cap via epoch interruption, 1MB output cap. Better sandboxing than raw subprocess.
+6. **Tool implementation** — Tools are external processes communicating via stdin/stdout JSON. Any language that can read stdin and write stdout works: bash, Python, Go binaries, Ruby, etc. Sandboxing is enforced by the subprocess runner (timeout, output cap, env allowlist, working dir lock). See [tools-deep-dive.md](../tools-deep-dive.md) for the full subprocess protocol.
 
 ---
 
@@ -308,14 +308,10 @@ agent-core skill remove <name>                  Remove an installed skill
 agent-core skill list                           List installed skills with eligibility
 ```
 
-**Templates** (Phase 1 — simple, no WASM required yet):
-- `bash` — shell script tool (no compilation)
-- `python` — Python script tool (no compilation)
-
-**Templates** (Phase 2 — WASM):
-- `typescript` → WASM via Javy
-- `go` → WASM via TinyGo
-- `rust` → WASM via wasm32-wasip1
+**Templates**:
+- `bash` — shell script tool (simplest, no compilation needed)
+- `python` — Python script tool
+- `go` — compiled Go binary tool
 
 Each template generates: `SKILL.md` (with frontmatter and instructions), `manifest.json` (tool schema), the tool implementation file, `.gitignore`, `README.md`.
 
@@ -353,23 +349,25 @@ Each source type has its own handler. Git clones to temp, audits, copies to skil
 
 ---
 
-## Gap 7: WASM Tools as the Preferred Sandboxing Path
+## Gap 7: Subprocess Sandboxing Spec
 
-**Current plan**: Subprocess tools (stdin/stdout JSON) as the primary external tool mechanism.
+**Current plan**: Subprocess tools mentioned but sandboxing constraints not specified.
 
-**Reality**: Subprocess tools are correct for Phase 1. But WASM is where the ecosystem is heading, and zeroclaw has already implemented it.
+**Reality**: Without explicit sandboxing constraints, skill tools inherit the full process environment. A malicious or buggy skill tool could read arbitrary files, exfiltrate env vars, or run indefinitely.
 
-The WASM protocol is identical to subprocess: stdin receives JSON args, stdout returns JSON result. The difference is the execution environment:
+**The subprocess sandbox** (enforced by agent-core's tool runner, not by the skill):
 
-| | Subprocess | WASM |
+| Constraint | Default | Configurable? |
 |---|---|---|
-| Filesystem | Inherits parent (sandboxed by policy) | Denied by default |
-| Network | Inherits parent (sandboxed by policy) | Denied by default |
-| Timeout | OS process timeout | Epoch-based interruption |
-| Portability | Platform-dependent | Any platform with wasmtime |
-| Security | Policy-based | Structural (WASI capabilities) |
+| Timeout | 30 seconds | Yes — per tool or globally |
+| Max stdout bytes | 1 MB | Yes — global config |
+| Working directory | Agent's run directory (locked) | Fixed |
+| Env vars passed | Declared in `requires.env` only | Per skill frontmatter |
+| Stderr | Captured and logged, not sent to LLM | — |
 
-**Plan**: Subprocess for Phase 1. WASM as the preferred tool format for Phase 2, alongside the scaffolding templates. Existing subprocess tools continue to work.
+**Env filtering** is the most important constraint: a subprocess only receives env vars explicitly declared in the skill's `requires.env` frontmatter, plus a minimal baseline (`PATH`, `HOME`, `TMPDIR`). This prevents a skill tool from reading `ANTHROPIC_API_KEY`, `AWS_SECRET_ACCESS_KEY`, or any other credential from the agent's environment.
+
+**Why not WASM?** zeroclaw uses WASM for structural sandboxing (filesystem/network denied at the runtime level). For Go, the WASM story is messier: TinyGo has significant stdlib limitations, and standard Go WASM binaries are 10–20MB. In practice, the subprocess sandbox with env filtering is sufficient for the common threat model (user-installed skills from trusted sources). WASM may be revisited if the platform evolves to run untrusted community tools in a multi-tenant environment.
 
 ---
 
@@ -412,8 +410,7 @@ skills/
     ├── SKILL.md          ← frontmatter + instruction body (required)
     └── tools/
         ├── gh_list_issues.json    ← tool schema (JSON Schema for parameters)
-        └── gh_list_issues.sh      ← tool implementation (bash, python, etc.)
-                                   or: tool.wasm (compiled WASM tool)
+        └── gh_list_issues.sh      ← tool implementation (bash, python, compiled binary, etc.)
 ```
 
 **`SKILL.md`** (complete example):
