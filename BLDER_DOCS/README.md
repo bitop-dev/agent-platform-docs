@@ -32,6 +32,8 @@ A web portal where users can:
 | [agent-core-gaps.md](agent-core-gaps.md) | Gap analysis from second-pass reference project review |
 | [skill-registry-deep-dive.md](skill-registry-deep-dive.md) | Skill system gaps from zeroclaw/openclaw analysis; build order |
 | [tools-deep-dive.md](tools-deep-dive.md) | Three-tier tool system: core tools, skill tools, MCP; subprocess protocol; sandboxing |
+| [skills/README.md](skills/README.md) | Bundled skill reference implementations index |
+| [skills/CONTRIBUTING.md](skills/CONTRIBUTING.md) | Community skill submission guide, requirements, PR review process |
 
 ---
 

@@ -612,7 +612,7 @@ const (
 ```
 skills/                  ← the `skills` repo
 ├── registry.json        ← index of all community skills (name, version, source, latest)
-├── CONTRIBUTING.md      ← how to add a skill, PR review process
+├── CONTRIBUTING.md      ← submission guide, requirements, naming, PR review (see skills/CONTRIBUTING.md)
 ├── web_search/
 │   ├── SKILL.md
 │   ├── tools/

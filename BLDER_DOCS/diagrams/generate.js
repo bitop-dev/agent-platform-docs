@@ -290,8 +290,8 @@ function diagramToolTiers() {
   all.push(...skillBox.elements);
   all.push(...label({ x: 390, y: 350, w: 220, text: "② Skill Tools", fontSize: 15, color: "#0c8599", bold: true }).elements);
   all.push(...label({ x: 390, y: 378, w: 220, text: "web_search · web_fetch", fontSize: 12, color: "#495057" }).elements);
-  all.push(...label({ x: 390, y: 398, w: 220, text: "github · slack · notion", fontSize: 12, color: "#495057" }).elements);
-  all.push(...label({ x: 390, y: 418, w: 220, text: "send_email · ...", fontSize: 12, color: "#495057" }).elements);
+  all.push(...label({ x: 390, y: 398, w: 220, text: "github · gitlab · summarize", fontSize: 12, color: "#495057" }).elements);
+  all.push(...label({ x: 390, y: 418, w: 220, text: "report · send_email · ...", fontSize: 12, color: "#495057" }).elements);
   all.push(...label({ x: 390, y: 448, w: 220, text: "Subprocess (stdin/stdout JSON).", fontSize: 11, color: "#0c8599" }).elements);
   all.push(...label({ x: 390, y: 466, w: 220, text: "Any language: bash, Python, Go.", fontSize: 11, color: "#0c8599" }).elements);
   all.push(...label({ x: 390, y: 486, w: 220, text: "Installed via skill registry.", fontSize: 11, color: "#0c8599" }).elements);
@@ -373,10 +373,10 @@ function diagramSkillLoading() {
   idCounter = 1;
   const all = [];
 
-  all.push(...label({ x: 100, y: 20, w: 700, text: "Skill Loading Flow", fontSize: 20, color: "#1e1e1e", bold: true }).elements);
+  all.push(...label({ x: 100, y: 20, w: 700, text: "Skill Install & Loading Flow", fontSize: 20, color: "#1e1e1e", bold: true }).elements);
 
-  // Left column: disk / install
-  const diskTitle = label({ x: 60, y: 70, w: 220, text: "Skill Sources", fontSize: 14, color: "#7048e8", bold: true });
+  // Left column: install sources
+  const diskTitle = label({ x: 60, y: 70, w: 220, text: "Install Sources", fontSize: 14, color: "#7048e8", bold: true });
   all.push(...diskTitle.elements);
 
   const local = rect({ x: 60, y: 100, w: 220, h: 50, label: "Local path\n./my-skill/", color: "purple" });
@@ -386,58 +386,61 @@ function diagramSkillLoading() {
 
   for (const b of [local, gitSrc, registry, bundled]) all.push(...b.elements);
 
-  // Middle column: skill loader
-  const audit = rect({ x: 360, y: 165, w: 200, h: 50, label: "Security Audit\n(on install)", color: "orange" });
-  const loader = rect({ x: 360, y: 250, w: 200, h: 80, label: "Skill Loader\n• parse frontmatter\n• check eligibility", color: "teal" });
-  const snapshot = rect({ x: 360, y: 360, w: 200, h: 80, label: "Build Snapshot\n• merge SKILL.md\n• register tools", color: "teal" });
+  // Middle column: install pipeline
+  const audit = rect({ x: 360, y: 100, w: 220, h: 50, label: "Security Audit\n(path traversal, patterns)", color: "orange" });
+  const deps = rect({ x: 360, y: 170, w: 220, h: 60, label: "Install Dependencies\nprompted · --yes · --skip-deps", color: "orange" });
+  const installed = rect({ x: 360, y: 250, w: 220, h: 40, label: "→ ~/.agent-core/skills/", color: "gray" });
 
-  for (const b of [audit, loader, snapshot]) all.push(...b.elements);
+  for (const b of [audit, deps, installed]) all.push(...b.elements);
 
-  // Right column: agent run
-  const sysprompt = rect({ x: 640, y: 250, w: 240, h: 60, label: "System Prompt\n(skills injected as XML)", color: "blue" });
-  const toolEngine = rect({ x: 640, y: 340, w: 240, h: 60, label: "ToolEngine\n(skill tools registered)", color: "blue" });
-  const agent = rect({ x: 640, y: 440, w: 240, h: 60, label: "Agent Run\n(mission starts)", color: "green" });
+  // Right column: run-time loading
+  all.push(...label({ x: 650, y: 70, w: 240, text: "Run Time", fontSize: 14, color: "#1971c2", bold: true }).elements);
 
-  for (const b of [sysprompt, toolEngine, agent]) all.push(...b.elements);
+  const loader = rect({ x: 640, y: 100, w: 240, h: 70, label: "Skill Loader\n• parse frontmatter\n• check eligibility", color: "teal" });
+  const snapshot = rect({ x: 640, y: 200, w: 240, h: 70, label: "Build Snapshot\n• merge SKILL.md\n• register tools", color: "teal" });
+  const agent = rect({ x: 640, y: 320, w: 240, h: 60, label: "Agent Run\n(mission starts)", color: "green" });
 
-  // Eligibility check callout
-  const elig = rect({ x: 360, y: 460, w: 200, h: 70, label: "Eligibility Check\n✓ bins installed?\n✓ env vars set?", color: "yellow" });
+  for (const b of [loader, snapshot, agent]) all.push(...b.elements);
+
+  // Eligibility callout
+  const elig = rect({ x: 640, y: 420, w: 240, h: 70, label: "Eligibility Check\n✓ bins installed?\n✓ env vars set?\n✗ skip + log warning", color: "yellow" });
   all.push(...elig.elements);
-  all.push(...label({ x: 300, y: 510, w: 60, text: "skip if ✗", fontSize: 11, color: "#e67700" }).elements);
 
-  // Arrows: sources → audit (on install)
+  // Install mode callout
+  const modes = rect({ x: 60, y: 380, w: 220, h: 80, label: "Install Flags\n(default): prompted\n--yes: auto-accept (CI)\n--skip-deps: files only", color: "gray" });
+  all.push(...modes.elements);
+
+  // Compact mode callout
+  const compact = rect({ x: 640, y: 530, w: 240, h: 60, label: "Injection Mode\nfull · compact · auto", color: "gray" });
+  all.push(...compact.elements);
+
+  // Arrows: sources → audit
   for (const b of [local, gitSrc, registry]) {
     all.push(...arrow({
       from: { x: 280, y: b.elements[0].y + 25 },
-      to: { x: 360, y: 190 },
+      to: { x: 360, y: 125 },
     }).elements);
   }
 
-  // bundled → loader (skip audit)
-  all.push(...arrow({ from: { x: 280, y: 320 }, to: { x: 360, y: 290 }, dash: true, label: "no audit" }).elements);
+  // bundled → loader (skip install pipeline)
+  all.push(...arrow({ from: { x: 280, y: 320 }, to: { x: 640, y: 135 }, dash: true, label: "skip install" }).elements);
 
-  // audit → loader
-  all.push(...arrow({ from: { x: 460, y: 215 }, to: { x: 460, y: 250 } }).elements);
+  // audit → deps → installed
+  all.push(...arrow({ from: { x: 470, y: 150 }, to: { x: 470, y: 170 } }).elements);
+  all.push(...arrow({ from: { x: 470, y: 230 }, to: { x: 470, y: 250 } }).elements);
+
+  // installed → loader (at run time)
+  all.push(...arrow({ from: { x: 580, y: 270 }, to: { x: 640, y: 135 }, label: "run time" }).elements);
+
+  // loader → snapshot → agent
+  all.push(...arrow({ from: { x: 760, y: 170 }, to: { x: 760, y: 200 } }).elements);
+  all.push(...arrow({ from: { x: 760, y: 270 }, to: { x: 760, y: 320 } }).elements);
 
   // loader → eligibility
-  all.push(...arrow({ from: { x: 460, y: 330 }, to: { x: 460, y: 460 } }).elements);
+  all.push(...arrow({ from: { x: 680, y: 170 }, to: { x: 680, y: 420 }, dash: true }).elements);
 
-  // eligibility → snapshot
-  all.push(...arrow({ from: { x: 460, y: 460 }, to: { x: 460, y: 440 }, dash: true }).elements);
-
-  // snapshot → sysprompt
-  all.push(...arrow({ from: { x: 560, y: 380 }, to: { x: 640, y: 280 } }).elements);
-
-  // snapshot → toolEngine
-  all.push(...arrow({ from: { x: 560, y: 400 }, to: { x: 640, y: 370 } }).elements);
-
-  // sysprompt + toolEngine → agent
-  all.push(...arrow({ from: { x: 760, y: 400 }, to: { x: 760, y: 440 } }).elements);
-
-  // compact mode callout
-  const compact = rect({ x: 640, y: 160, w: 240, h: 70, label: "Injection Mode\nfull: all SKILL.md content\ncompact: catalog + skill_load tool", color: "gray" });
-  all.push(...compact.elements);
-  all.push(...arrow({ from: { x: 560, y: 360 }, to: { x: 640, y: 195 }, dash: true }).elements);
+  // snapshot → compact
+  all.push(...arrow({ from: { x: 760, y: 270 }, to: { x: 760, y: 530 }, dash: true }).elements);
 
   return excalidraw(all);
 }

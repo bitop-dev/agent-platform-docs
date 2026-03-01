@@ -23,9 +23,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 486639,
+      "seed": 235879,
       "version": 1,
-      "versionNonce": 440709,
+      "versionNonce": 752054,
       "isDeleted": false,
       "boundElements": [
         {
@@ -33,7 +33,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -55,12 +55,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 592162,
+      "seed": 730455,
       "version": 1,
-      "versionNonce": 987815,
+      "versionNonce": 604433,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "platform-web\n(Next.js Portal)",
@@ -93,9 +93,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 913924,
+      "seed": 252877,
       "version": 1,
-      "versionNonce": 208888,
+      "versionNonce": 848125,
       "isDeleted": false,
       "boundElements": [
         {
@@ -103,7 +103,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -125,12 +125,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 263562,
+      "seed": 714377,
       "version": 1,
-      "versionNonce": 765211,
+      "versionNonce": 550746,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "platform-api\n(Go API Server)",
@@ -163,9 +163,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 267060,
+      "seed": 188017,
       "version": 1,
-      "versionNonce": 352096,
+      "versionNonce": 988815,
       "isDeleted": false,
       "boundElements": [
         {
@@ -173,7 +173,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -195,12 +195,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 604202,
+      "seed": 409170,
       "version": 1,
-      "versionNonce": 520750,
+      "versionNonce": 816797,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "agent-core\n(Go binary + pkg/agent)",
@@ -233,9 +233,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 230590,
+      "seed": 837619,
       "version": 1,
-      "versionNonce": 893408,
+      "versionNonce": 679718,
       "isDeleted": false,
       "boundElements": [
         {
@@ -243,7 +243,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -265,12 +265,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 705989,
+      "seed": 771470,
       "version": 1,
-      "versionNonce": 857650,
+      "versionNonce": 111380,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "Scheduler\n(cron engine)",
@@ -303,9 +303,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 80206,
+      "seed": 672144,
       "version": 1,
-      "versionNonce": 921021,
+      "versionNonce": 154370,
       "isDeleted": false,
       "boundElements": [
         {
@@ -313,7 +313,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -335,12 +335,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 950029,
+      "seed": 553652,
       "version": 1,
-      "versionNonce": 119069,
+      "versionNonce": 421964,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "skills repo\n(community registry)",
@@ -373,9 +373,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 161802,
+      "seed": 782134,
       "version": 1,
-      "versionNonce": 718286,
+      "versionNonce": 309802,
       "isDeleted": false,
       "boundElements": [
         {
@@ -383,7 +383,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -405,12 +405,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 41414,
+      "seed": 145327,
       "version": 1,
-      "versionNonce": 193398,
+      "versionNonce": 864750,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "Storage\n(PostgreSQL + object store)",
@@ -443,9 +443,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 305262,
+      "seed": 476203,
       "version": 1,
-      "versionNonce": 325899,
+      "versionNonce": 441279,
       "isDeleted": false,
       "boundElements": [
         {
@@ -453,7 +453,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -475,12 +475,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 874335,
+      "seed": 817834,
       "version": 1,
-      "versionNonce": 113836,
+      "versionNonce": 59961,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "LLM Providers\n(Anthropic · OpenAI · Ollama · Google)",
@@ -513,9 +513,9 @@
       "roundness": {
         "type": 3
       },
-      "seed": 80385,
+      "seed": 221467,
       "version": 1,
-      "versionNonce": 456587,
+      "versionNonce": 322866,
       "isDeleted": false,
       "boundElements": [
         {
@@ -523,7 +523,7 @@
           "type": "text"
         }
       ],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false
     },
@@ -545,12 +545,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 110369,
+      "seed": 332868,
       "version": 1,
-      "versionNonce": 96896,
+      "versionNonce": 364500,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "MCP Servers\n(external tool servers)",
@@ -583,12 +583,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 596812,
+      "seed": 293403,
       "version": 1,
-      "versionNonce": 375732,
+      "versionNonce": 403680,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "points": [
@@ -625,12 +625,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 196260,
+      "seed": 102323,
       "version": 1,
-      "versionNonce": 199641,
+      "versionNonce": 128389,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "REST + WS",
@@ -663,12 +663,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 336512,
+      "seed": 966250,
       "version": 1,
-      "versionNonce": 461213,
+      "versionNonce": 130547,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "points": [
@@ -705,12 +705,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 334179,
+      "seed": 737031,
       "version": 1,
-      "versionNonce": 77956,
+      "versionNonce": 301415,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "imports pkg/agent",
@@ -743,12 +743,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 357287,
+      "seed": 513265,
       "version": 1,
-      "versionNonce": 307950,
+      "versionNonce": 852538,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738136,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "points": [
@@ -785,12 +785,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 27166,
+      "seed": 855713,
       "version": 1,
-      "versionNonce": 327454,
+      "versionNonce": 263317,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "manages jobs",
@@ -823,12 +823,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 253829,
+      "seed": 478502,
       "version": 1,
-      "versionNonce": 29804,
+      "versionNonce": 640150,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "points": [
@@ -867,12 +867,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 520745,
+      "seed": 238515,
       "version": 1,
-      "versionNonce": 556513,
+      "versionNonce": 937720,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "points": [
@@ -909,12 +909,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 552371,
+      "seed": 939475,
       "version": 1,
-      "versionNonce": 157273,
+      "versionNonce": 625374,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "streaming API",
@@ -947,12 +947,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 206529,
+      "seed": 229775,
       "version": 1,
-      "versionNonce": 493413,
+      "versionNonce": 27169,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "points": [
@@ -989,12 +989,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 601733,
+      "seed": 240497,
       "version": 1,
-      "versionNonce": 543882,
+      "versionNonce": 843406,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459864,
       "link": null,
       "locked": false,
       "text": "installs / loads",
@@ -1027,12 +1027,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 261744,
+      "seed": 959840,
       "version": 1,
-      "versionNonce": 245194,
+      "versionNonce": 515766,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459865,
       "link": null,
       "locked": false,
       "points": [
@@ -1069,12 +1069,12 @@
       "groupIds": [],
       "frameId": null,
       "roundness": null,
-      "seed": 504579,
+      "seed": 106364,
       "version": 1,
-      "versionNonce": 96135,
+      "versionNonce": 463883,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459865,
       "link": null,
       "locked": false,
       "text": "MCP (phase 2)",
@@ -1107,12 +1107,12 @@
       "roundness": {
         "type": 2
       },
-      "seed": 439435,
+      "seed": 80231,
       "version": 1,
-      "versionNonce": 697227,
+      "versionNonce": 845175,
       "isDeleted": false,
       "boundElements": [],
-      "updated": 1772324738137,
+      "updated": 1772327459865,
       "link": null,
       "locked": false,
       "points": [

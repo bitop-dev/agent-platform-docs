@@ -375,6 +375,8 @@ Local skills can override bundled skills. If you have `~/.agent-core/skills/gith
 
 The `skills` repository is a separate Git repo. Registry model is **Git-native**: the canonical ID for a community skill is its git URL. `registry.json` provides short-name resolution for curated skills.
 
+**Governance**: Open to anyone. Submit a PR, pass automated CI checks (frontmatter validation, security audit, structure check), get one maintainer approval, merge. See [CONTRIBUTING.md](../skills/CONTRIBUTING.md) for the full submission guide, requirements checklist, naming conventions, and review criteria.
+
 ```
 skills/
 ├── registry.json          ← maps short names to git URLs + versions
