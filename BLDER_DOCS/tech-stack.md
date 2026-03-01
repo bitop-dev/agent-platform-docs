@@ -45,32 +45,29 @@ Technology decisions for the Agent Platform, with rationale. Updated to reflect 
 
 ---
 
-## Frontend: Next.js + React
+## Frontend: Bun + Vite + React
 
-**Why Next.js?**
-- App Router provides file-based routing matching our page structure
-- TypeScript-first
-- Turbopack for fast dev iteration
+**Why Bun + Vite?** Replaced Next.js in Phase 3 rewrite.
+- 122ms dev cold start (vs Next.js ~400ms)
+- 1s production build (vs ~4s)
+- Pure SPA — no SSR needed, all data from API
+- Tailwind v4 with `@tailwindcss/vite` plugin (no PostCSS config)
 
-### Actual Frontend Libraries
+### Frontend Libraries
 
 | Library | Purpose | Status |
 |---|---|---|
-| `next` (v15/16) | Framework (App Router) | ✅ Implemented |
+| `bun` | Runtime + package manager | ✅ Implemented |
+| `vite` (v7) | Build tool + dev server | ✅ Implemented |
+| `react` (v19) | UI framework | ✅ Implemented |
+| `react-router-dom` (v6) | Client-side routing | ✅ Implemented |
 | `shadcn/ui` | Component library (14 components) | ✅ Implemented |
-| `tailwindcss` | Utility-first CSS (dark theme) | ✅ Implemented |
+| `tailwindcss` (v4) | Utility-first CSS (dark theme) | ✅ Implemented |
 | `@tanstack/react-query` | Server state / data fetching | ✅ Implemented |
 | `zustand` | Client auth state management | ✅ Implemented |
 | `lucide-react` | Icon set | ✅ Implemented |
 | `sonner` | Toast notifications | ✅ Implemented |
 | WebSocket (native) | Real-time run streaming | ✅ Implemented |
-
-### Not Yet Needed
-
-| Library | Purpose | When |
-|---|---|---|
-| `react-hook-form` + `zod` | Complex form validation | Phase 4 (agent builder wizard) |
-| `monaco-editor` | Code editor for skill creator | Phase 4 (skill hub) |
 | `recharts` | Charts for cost tracking | Phase 5+ |
 
 ---

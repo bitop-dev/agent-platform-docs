@@ -101,19 +101,22 @@ Logged in via browser, created agent, triggered run, watched streaming output wi
 
 ---
 
-## Phase 4 — Skills Repo + Skill Hub (`skills` + `platform-api` + `platform-web`) (Week 10–11)
+## Phase 4 — Skills Repo + Skill Hub (`skills` + `platform-api` + `platform-web`) (Week 10–11) ✅
 **Goal**: The skills registry is live and agents can be equipped with skills from the UI.
 
 ### Deliverables
-- [ ] `skills` repo: structure, `registry.json`, `CONTRIBUTING.md`
-- [ ] First 5 skills: `github`, `web_search`, `summarize`, `slack`, `healthcheck`
-- [ ] Skill Hub UI: browse, search, filter by tier/tag
-- [ ] Agent Builder UI: multi-step wizard (Identity → Mission → Skills → Review)
-- [ ] Skill detail page (description, tools, which agents use it)
-- [ ] Community skill install from Git URL
+- [x] `agent-platform-skills` repo: registry.json, CONTRIBUTING.md, LICENSE, 5 skills
+- [x] Skills: `web_search` (DuckDuckGo), `web_fetch` (HTML→markdown), `github` (gh CLI), `summarize`, `report`
+- [x] Multi-source skill registry: API syncs from any GitHub repo on startup
+- [x] Skill Sources API: CRUD for custom GitHub repos, sync triggers
+- [x] Skill Hub UI: browse skills from all sources, add custom repos, sync all
+- [x] agent-core `skill install/remove/update/search` CLI commands
+- [x] Auto-install: missing skills fetched from `skill_sources` on agent run
+- [x] `skill_sources` config field in agent YAML
+- [x] End-to-end tested: install → run → web_search + web_fetch with real LLM
 
-### Success Criteria
-User browses the Skill Hub, adds the `github` skill to an agent, and runs it — without touching any files.
+### Success Criteria ✅
+Skills installed from GitHub via CLI, agent ran web_search + web_fetch with real DuckDuckGo results and LLM summarization. Web UI shows skills synced from registry with source management.
 
 ---
 

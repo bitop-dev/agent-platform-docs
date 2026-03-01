@@ -10,12 +10,12 @@ Architecture, design, and planning documents for the AI Agent Platform.
 
 | Phase | Repo | Status | Artifacts |
 |---|---|---|---|
-| 0 — Core Runtime | agent-core | ✅ Complete | 69 files, 10K lines, 111 tests |
+| 0 — Core Runtime | agent-core | ✅ Complete | 84 files, 11K lines, 111 tests |
 | 1 — Tools + Skills | agent-core | ✅ Complete | 8 tools, skills, MCP, safety |
-| 2 — Platform API | agent-platform-api | ✅ Complete | 32 files, 4.6K lines, 22 tests |
-| 3 — Web Portal | agent-platform-web | ✅ Complete | 35 files, 3.1K lines, 12 pages |
-| 4 — Skill Hub | skills + platform | 🔜 Next | — |
-| 5 — Scheduler | platform-api + web | Planned | — |
+| 2 — Platform API | agent-platform-api | ✅ Complete | 62 files, 5.5K lines, 22 tests |
+| 3 — Web Portal | agent-platform-web | ✅ Complete | 45 files, ~3K lines, 11 pages |
+| 4 — Skill Hub | skills + all repos | ✅ Complete | 5 skills, multi-source registry, CLI + UI |
+| 5 — Scheduler | platform-api + web | 🔜 Next | — |
 | 6–9 | Various | Planned | — |
 
 ---
