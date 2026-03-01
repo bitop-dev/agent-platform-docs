@@ -28,6 +28,10 @@ services:
       - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
       - DEFAULT_MODEL=${DEFAULT_MODEL:-gpt-4o}
       - DEFAULT_PROVIDER=${DEFAULT_PROVIDER:-openai}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
     volumes:
       - api-data:/app/data
       - skills-cache:/home/app/.agent-core/skills
