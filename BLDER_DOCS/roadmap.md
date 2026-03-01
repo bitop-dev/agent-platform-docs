@@ -56,38 +56,48 @@ Tested with real MCP servers (context7, tanstack), real LLM APIs, multi-tool age
 
 ---
 
-## Phase 2 — Platform API: Foundation (`platform-api`) (Week 5–7)
+## Phase 2 — Platform API: Foundation (`platform-api`) (Week 5–7) ✅
 **Goal**: REST API that wraps agent-core — agents and runs are persistent, streamable over WebSocket.
 
 ### Deliverables
-- [ ] `platform-api` repo: Go module, directory structure
-- [ ] Database schema + migrations (SQLite dev, PostgreSQL prod)
-- [ ] Agent CRUD API (`/api/v1/agents`)
-- [ ] Runs API (`/api/v1/runs`) — triggers `agent-core/pkg/agent` in-process
-- [ ] WebSocket run streaming (`/api/v1/runs/:id/stream`)
-- [ ] Run persistence (run records + events stored in DB)
-- [ ] JWT authentication (login/logout/refresh)
-- [ ] Skills sync from `skills` repo → local DB registry
-- [ ] Skills CRUD API (`/api/v1/skills`)
+- [x] `platform-api` repo: Go module, directory structure
+- [x] Database schema + migrations (SQLite dev, PostgreSQL prod)
+- [x] Agent CRUD API (`/api/v1/agents`)
+- [x] Runs API (`/api/v1/runs`) — triggers `agent-core/pkg/agent` in-process
+- [x] WebSocket run streaming (`/ws/runs/:id`)
+- [x] Run persistence (run records + events stored in DB)
+- [x] JWT authentication (register/login/refresh)
+- [x] Skills CRUD API (`/api/v1/skills`)
+- [x] API key management with encryption at rest
+- [x] Rate limiting (10/min auth, 120/min API)
+- [x] Models catalog endpoint
+- [x] Dashboard stats endpoint
+- [x] Run cancellation
+- [x] OpenAPI spec
+- [x] Docker support (Dockerfile + docker-compose.yml)
+- [x] Structured logging (slog)
 
-### Success Criteria
-Can create an agent via API call, trigger a run, and stream its events over WebSocket.
+### Success Criteria ✅
+Created agent via API, triggered run, verified LLM execution with real tool calls, events persisted. 22 tests passing.
 
 ---
 
-## Phase 3 — Web Portal: First UI (`platform-web`) (Week 8–9)
+## Phase 3 — Web Portal: First UI (`platform-web`) (Week 8–9) ✅
 **Goal**: A browser you can use to create agents and watch runs live.
 
 ### Deliverables
-- [ ] `platform-web` repo: Next.js App Router setup
-- [ ] Agent list + create + detail pages
-- [ ] Run Monitor: live streaming view (WebSocket → token-by-token display)
-- [ ] Run history page (paginated, filterable)
-- [ ] Basic auth UI (login/logout)
-- [ ] API key management (add LLM provider keys)
+- [x] `platform-web` repo: Next.js 15 App Router setup
+- [x] Agent list + create + detail + edit pages
+- [x] Run Monitor: live streaming output + collapsed event timeline
+- [x] Run history page (table view)
+- [x] Auth UI (login/register with JWT + refresh tokens)
+- [x] API key management (add/delete, base URL, default toggle)
+- [x] Dashboard with stat cards + recent runs
+- [x] Skills browser page
+- [x] Dark theme (shadcn/ui + Tailwind)
 
-### Success Criteria
-Can log in, create an agent through the browser, trigger a run, and watch it stream in real time.
+### Success Criteria ✅
+Logged in via browser, created agent, triggered run, watched streaming output with tool call timeline. 12 pages, clean build.
 
 ---
 

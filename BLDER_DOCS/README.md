@@ -1,72 +1,79 @@
-# Agent Platform — Builder Documentation
+# BLDER_DOCS — Agent Platform Design Documentation
 
-This directory contains the planning, architecture, and design documentation for the **Agent Platform** — a web-based system for creating, configuring, and running autonomous AI agents.
+Architecture, design, and planning documents for the AI Agent Platform.
 
-## Vision
-
-A web portal where users can:
-- **Create agents** with a name, persona, and mission/job description
-- **Equip agents with skills** from a central skill registry
-- **Schedule agents** to run on a cron schedule or trigger manually
-- **Monitor agents** in real-time: see logs, status, outputs, and run history
-- **Orchestrate multiple agents** for complex multi-step workflows
+> These docs were written before implementation and guided the build of all three repos. They remain the authoritative design reference.
 
 ---
 
-## Document Index
+## Build Status
+
+| Phase | Repo | Status | Artifacts |
+|---|---|---|---|
+| 0 — Core Runtime | agent-core | ✅ Complete | 69 files, 10K lines, 111 tests |
+| 1 — Tools + Skills | agent-core | ✅ Complete | 8 tools, skills, MCP, safety |
+| 2 — Platform API | agent-platform-api | ✅ Complete | 32 files, 4.6K lines, 22 tests |
+| 3 — Web Portal | agent-platform-web | ✅ Complete | 35 files, 3.1K lines, 12 pages |
+| 4 — Skill Hub | skills + platform | 🔜 Next | — |
+| 5 — Scheduler | platform-api + web | Planned | — |
+| 6–9 | Various | Planned | — |
+
+---
+
+## Architecture Documents
 
 | Document | Description |
 |---|---|
-| [architecture/overview.md](architecture/overview.md) | System-wide architecture diagram and component map |
-| [architecture/agent-core.md](architecture/agent-core.md) | The agent runtime engine |
-| [architecture/skill-registry.md](architecture/skill-registry.md) | Skill discovery, storage, and execution |
-| [architecture/scheduler.md](architecture/scheduler.md) | Cron-based and event-driven job scheduling |
-| [architecture/web-platform.md](architecture/web-platform.md) | Web portal, API, and UI design |
-| [architecture/orchestration.md](architecture/orchestration.md) | Multi-agent coordination and workflow |
-| [architecture/data-model.md](architecture/data-model.md) | Database schemas and persistence design |
-| [tech-stack.md](tech-stack.md) | Language, framework, and dependency decisions |
-| [roadmap.md](roadmap.md) | Phased build plan with milestones |
-| [reference-projects.md](reference-projects.md) | Analysis of opensrc reference projects |
+| [architecture/overview.md](architecture/overview.md) | System-wide architecture — 4 repos, dependency rules, component map |
+| [architecture/agent-core.md](architecture/agent-core.md) | Agent runtime — turn loop, provider interface, event model, context management |
+| [architecture/skill-registry.md](architecture/skill-registry.md) | Skill discovery, SKILL.md format, loading pipeline, tiers |
+| [architecture/scheduler.md](architecture/scheduler.md) | Cron engine, job queue, trigger types, overlap policies |
+| [architecture/web-platform.md](architecture/web-platform.md) | Web portal routes, API design, UI components, auth model |
+| [architecture/orchestration.md](architecture/orchestration.md) | Multi-agent coordination — spawn, registry, depth limits |
+| [architecture/data-model.md](architecture/data-model.md) | Full database schema for all entities |
+
+## Deep Dive Documents
+
+| Document | Description |
+|---|---|
+| [agent-core-deep-dive.md](agent-core-deep-dive.md) | 920+ lines — Go code samples, YAML config, CLI commands, directory structure, build order |
+| [agent-core-gaps.md](agent-core-gaps.md) | Gap analysis — 8 gaps identified and resolved (MCP, model catalog, reliable provider, etc.) |
+| [skill-registry-deep-dive.md](skill-registry-deep-dive.md) | 800+ lines — 8 gaps, dependency install flow, testing spec, community process |
+| [tools-deep-dive.md](tools-deep-dive.md) | Three-tier tool system — core tools, subprocess protocol, sandboxing, agent-level config |
+
+## Planning Documents
+
+| Document | Description |
+|---|---|
+| [tech-stack.md](tech-stack.md) | Technology choices with rationale per repo |
+| [roadmap.md](roadmap.md) | 9-phase build plan — Phases 0–3 complete, 4+ planned |
 | [repository-structure.md](repository-structure.md) | Multi-repo boundaries, dependency graph, dev workflow |
-| [agent-core-deep-dive.md](agent-core-deep-dive.md) | Comprehensive agent-core design with Go code, CLI, directory structure |
-| [agent-core-gaps.md](agent-core-gaps.md) | Gap analysis from second-pass reference project review |
-| [skill-registry-deep-dive.md](skill-registry-deep-dive.md) | Skill system gaps from zeroclaw/openclaw analysis; build order |
-| [tools-deep-dive.md](tools-deep-dive.md) | Three-tier tool system: core tools, skill tools, MCP; subprocess protocol; sandboxing |
-| [skills/README.md](skills/README.md) | Bundled skill reference implementations index |
-| [skills/CONTRIBUTING.md](skills/CONTRIBUTING.md) | Community skill submission guide, requirements, PR review process |
+| [reference-projects.md](reference-projects.md) | Analysis of 4 open-source agent projects (gastown, openclaw, zeroclaw, pi-mono) |
 
----
+## Skills Reference Implementations
 
-## Quick Concept Map
+7 bundled skill packages with full SKILL.md, tool schemas, and test fixtures:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      Web Portal (UI)                        │
-│         Create Agents · Assign Skills · View Runs           │
-└────────────────────────┬────────────────────────────────────┘
-                         │ REST + WebSocket API
-┌────────────────────────▼────────────────────────────────────┐
-│                    Platform API (Go)                        │
-│     Auth · Agent CRUD · Skill Registry · Job Manager       │
-└──────┬───────────────────────────────────┬──────────────────┘
-       │                                   │
-┌──────▼──────────┐               ┌────────▼────────┐
-│  Agent Runtime  │               │   Scheduler     │
-│  (Agent Core)   │               │  (Cron Engine)  │
-│                 │               │                 │
-│ · LLM Provider  │               │ · Cron Expr     │
-│ · Tool Exec     │               │ · Event Trigger │
-│ · Memory/State  │               │ · Run History   │
-│ · Skill Load    │               │ · Retry/Backoff │
-└──────┬──────────┘               └────────┬────────┘
-       │                                   │
-┌──────▼───────────────────────────────────▼──────────────────┐
-│                     Skill Registry                          │
-│    Bundled Skills · Workspace Skills · Community Skills     │
-└─────────────────────────────────────────────────────────────┘
-       │
-┌──────▼──────────────────────────────────────────────────────┐
-│                    Storage Layer                            │
-│    SQLite (dev) · PostgreSQL (prod) · Object Store (logs)   │
-└─────────────────────────────────────────────────────────────┘
-```
+| Skill | Description | Tools |
+|---|---|---|
+| [web_search](skills/web_search/) | Search via DuckDuckGo (pluggable backends) | `web_search.py` |
+| [web_fetch](skills/web_fetch/) | Fetch URL → readable markdown | `web_fetch` |
+| [summarize](skills/summarize/) | Condense long text (instruction-only) | — |
+| [github](skills/github/) | Issues, PRs via `gh` CLI | `gh_issues`, `gh_prs` |
+| [gitlab](skills/gitlab/) | Issues, MRs via `glab` CLI | `glab_issues`, `glab_mrs` |
+| [report](skills/report/) | Structured markdown output (instruction-only) | — |
+| [send_email](skills/send_email/) | Send email via SMTP | — |
+
+Community contribution guide: [skills/CONTRIBUTING.md](skills/CONTRIBUTING.md)
+
+## Diagrams
+
+Excalidraw format (editable) + PNG exports:
+
+| Diagram | Description |
+|---|---|
+| [01-system-architecture.png](diagrams/01-system-architecture.png) | All repos + providers + storage + MCP |
+| [02-tool-tiers.png](diagrams/02-tool-tiers.png) | Core → Skill → MCP tool tiers |
+| [03-agent-turn-loop.png](diagrams/03-agent-turn-loop.png) | Main agent loop flowchart |
+| [04-skill-loading.png](diagrams/04-skill-loading.png) | Install pipeline + runtime loading |
+| [05-multi-repo.png](diagrams/05-multi-repo.png) | 4-repo dependency graph |
