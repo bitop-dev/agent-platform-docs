@@ -1,0 +1,21 @@
+{
+  "name": "web_search",
+  "description": "Search the web and return titles, URLs, and snippets. Use for finding current information, documentation, or verifying facts.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "The search query. Be specific — include key terms, versions, dates when relevant."
+      },
+      "max_results": {
+        "type": "integer",
+        "description": "Maximum number of results to return. Use 3-5 for quick lookups, 10-20 for research.",
+        "default": 10,
+        "minimum": 1,
+        "maximum": 25
+      }
+    },
+    "required": ["query"]
+  }
+}

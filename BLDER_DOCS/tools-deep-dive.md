@@ -169,9 +169,15 @@ Every tool call that reaches a skill tool:
   "arguments": {
     "repo": "org/myapp",
     "state": "open"
+  },
+  "config": {
+    "some_skill_setting": "value"
   }
 }
 ```
+
+The `config` field contains per-skill settings from the agent YAML. The LLM never sees or controls this — it's human-configured. If the skill has no config in the agent YAML, `config` is `{}`.
+
 
 **stdout** (what the tool must return):
 ```json

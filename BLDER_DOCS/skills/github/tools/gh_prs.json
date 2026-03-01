@@ -1,0 +1,25 @@
+{
+  "name": "gh_prs",
+  "description": "List or search GitHub pull requests for a repository. Returns PR number, title, author, state, and review status.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "repo": {
+        "type": "string",
+        "description": "Repository in owner/repo format"
+      },
+      "state": {
+        "type": "string",
+        "enum": ["open", "closed", "merged", "all"],
+        "description": "Filter by PR state",
+        "default": "open"
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Maximum PRs to return",
+        "default": 20
+      }
+    },
+    "required": ["repo"]
+  }
+}

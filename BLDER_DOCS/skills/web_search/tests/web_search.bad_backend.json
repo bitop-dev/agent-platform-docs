@@ -1,0 +1,10 @@
+{
+  "tool_call_id": "test_003",
+  "name": "web_search",
+  "arguments": {
+    "query": "test query"
+  },
+  "config": {
+    "backend": "nonexistent"
+  }
+}

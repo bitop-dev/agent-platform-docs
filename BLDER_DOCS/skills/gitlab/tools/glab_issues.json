@@ -1,0 +1,27 @@
+{
+  "name": "glab_issues",
+  "description": "List or search GitLab issues for a project. Returns issue number, title, state, assignees, and labels.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "repo": {
+        "type": "string",
+        "description": "Project path in owner/repo format"
+      },
+      "state": {
+        "type": "string",
+        "enum": ["opened", "closed", "all"],
+        "default": "opened"
+      },
+      "label": {
+        "type": "string",
+        "description": "Filter by label name (optional)"
+      },
+      "limit": {
+        "type": "integer",
+        "default": 20
+      }
+    },
+    "required": ["repo"]
+  }
+}

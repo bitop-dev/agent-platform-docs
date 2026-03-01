@@ -1,0 +1,8 @@
+{
+  "tool_call_id": "test_002",
+  "name": "web_fetch",
+  "arguments": {
+    "url": "https://thisdomaindoesnotexist12345.com/page"
+  },
+  "config": {}
+}

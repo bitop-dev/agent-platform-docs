@@ -200,6 +200,72 @@ func checkEligibility(skill Skill) EligibilityResult {
 
 ---
 
+## Gap 2b: Dependency Installation on Skill Install
+
+Skills have two levels of dependencies:
+
+1. **System binaries** (`gh`, `glab`, `python3`) — declared in `requires.bins`, install method in `install:` frontmatter
+2. **Script dependencies** (`pip install duckduckgo-search`) — needed by the tool scripts themselves, declared in `setup` files (e.g., `requirements.txt`)
+
+### Install behavior
+
+| Flag | Who uses it | Behavior |
+|---|---|---|
+| *(default)* | Developer at their laptop | Prompts for each missing dep: "Install gh via brew? [y/n]" |
+| `--yes` / `-y` | CI/CD pipelines, scripts | Auto-installs everything without prompting |
+| `--skip-deps` | Power user managing their own env | Installs skill files only, no dependency changes |
+
+Also supports `AGENT_CORE_YES=1` env var as equivalent to `--yes`.
+
+### Install flow
+
+```
+agent-core skill install web_search
+  1. Download/clone skill files → temp dir
+  2. Security audit → abort if findings
+  3. Check requires.bins → python3 found? ✓
+  4. Check script deps → duckduckgo-search installed? ✗
+     → Prompt: "web_search requires duckduckgo-search. Run 'pip install duckduckgo-search'? [y/n]"
+     → User: y → run install
+  5. Move skill to ~/.agent-core/skills/web_search/
+  ✓ Done
+```
+
+### CI/CD pattern
+
+Skills should be installed at **build time**, not runtime:
+
+```dockerfile
+# Dockerfile
+FROM golang:1.22
+RUN go install github.com/[org]/agent-core@latest
+RUN agent-core skill install web_search github --yes
+```
+
+Or install all skills from an agent config:
+```bash
+agent-core skill install --from-config agent.yaml --yes
+```
+
+At **run time**, missing dependencies cause the skill to be skipped (eligibility check) or the tool to return a clear error message — no install attempts.
+
+### Runtime safety net
+
+Even after install, tool scripts check their own dependencies at runtime:
+```python
+try:
+    from duckduckgo_search import DDGS
+except ImportError:
+    print(json.dumps({
+        "content": "duckduckgo-search not installed. Run: pip install duckduckgo-search",
+        "is_error": True
+    }))
+```
+
+This catches cases where the environment changed after install (new container, different virtualenv, etc.).
+
+---
+
 ## Gap 3: Prompt Injection Modes (Full vs Compact)
 
 **Current plan**: All skills always injected in full.
@@ -545,26 +611,28 @@ const (
 
 ```
 skills/                  ← the `skills` repo
-├── registry.json        ← index of all skills (name, version, description, tags, source)
-├── CONTRIBUTING.md      ← how to add a skill
-├── github/
-│   ├── SKILL.md
-│   └── tools/
-│       ├── gh_list_issues.json
-│       └── gh_list_issues.sh
+├── registry.json        ← index of all community skills (name, version, source, latest)
+├── CONTRIBUTING.md      ← how to add a skill, PR review process
 ├── web_search/
 │   ├── SKILL.md
-│   └── tools/
-│       ├── search.json
-│       └── search.sh
-├── slack/
-├── notion/
+│   ├── tools/
+│   │   ├── web_search.json
+│   │   └── web_search.sh
+│   └── tests/
+│       ├── web_search.basic.json
+│       └── web_search.basic.expected.json
+├── web_fetch/
+│   ├── SKILL.md
+│   ├── tools/
+│   │   ├── web_fetch.json
+│   │   └── web_fetch.py
+│   └── tests/
 ├── summarize/
-├── healthcheck/
-├── weather/
-├── browser/
-├── file_ops/
-└── ...
+├── github/
+├── gitlab/
+├── report/
+├── send_email/
+└── ...                  ← community contributions below
 ```
 
 **`registry.json`**:
@@ -599,7 +667,7 @@ skills/                  ← the `skills` repo
 5. Tool schema loader (reads `tools/*.json`, registers with ToolEngine)
 6. Tool subprocess runner for skill tools (same as agent-core's subprocess runner)
 7. `agent-core skill list` command (with eligibility status)
-8. Bundled skills: `web_search`, `github`, `summarize`, `http_request`, `bash`
+8. Bundled skills: `web_search`, `web_fetch`, `summarize`, `github`, `gitlab`, `report`, `send_email`
 
 **Week 2 — Install and scaffolding:**
 9. Security audit (path traversal, zip bomb, dangerous patterns)
@@ -616,10 +684,203 @@ skills/                  ← the `skills` repo
 18. `skill_load` built-in tool (for compact mode on-demand loading)
 19. Auto mode (full vs compact based on skill count threshold)
 20. `always: true` override in compact mode
-21. `agent-core skill test <path>` (runs a tool with test args, shows result)
-22. 10+ bundled skills in the `skills` repo
-23. `registry.json` index with all bundled skills
-24. Skill install from registry format (`namespace/name[@version]`)
+21. Skill testing: validate structure, check eligibility, run `tests/` fixtures
+22. Test fixture discovery: `tests/<tool>.<test>.json` + `.expected.json` pattern matching
+23. `agent-core skill test <path>` with `--validate-only`, `--tool`, `--input` flags
+24. Per-skill config: agent YAML config passed to tool subprocess as `config` field on stdin
+25. 7 bundled skills in the `skills` repo with test fixtures
+26. `registry.json` index with `latest` + versioned entries
+27. Skill install from registry format (`namespace/name[@version]`)
+
+---
+
+## Bundled Skills (Ship with agent-core)
+
+Seven skills compiled into the binary. No install step, no API keys required for the defaults.
+
+| Skill | Description | Dependencies | Notes |
+|---|---|---|---|
+| `web_search` | Search the web via DuckDuckGo (default) | none (DDG) | Pluggable backend: `ddg`, `brave`, `serper`, `tavily`, `searxng` |
+| `web_fetch` | Fetch a URL, extract readable content (HTML → markdown) | none | Strips nav/ads, returns clean text |
+| `summarize` | Summarize long text into concise output | none | Uses the agent's own LLM — no external calls |
+| `github` | GitHub operations via `gh` CLI | `gh` binary | Issues, PRs, CI, code review |
+| `gitlab` | GitLab operations via `glab` CLI | `glab` binary | Issues, MRs, pipelines, code review |
+| `report` | Structure output into formatted documents | none | Markdown reports with sections, tables, citations |
+| `send_email` | Send email via SMTP | none | Requires `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` env vars |
+
+Bundled skills version with the binary — updating `agent-core` updates the bundled skills. No separate versioning.
+
+---
+
+## Per-Skill Configuration
+
+Skills can accept configuration from the agent YAML. The LLM controls `arguments` (what to do); the human controls `config` (how to do it). They never mix.
+
+**Agent YAML:**
+```yaml
+skills:
+  - github                    # simple — no config
+  - web_search:               # config form
+      backend: ddg            # ddg | brave | serper | tavily | searxng
+      max_results: 10
+  - send_email:
+      smtp_host: smtp.gmail.com
+      smtp_port: 587
+```
+
+**What the tool subprocess receives on stdin:**
+```json
+{
+  "tool_call_id": "tc_001",
+  "name": "web_search",
+  "arguments": { "query": "Go error handling best practices" },
+  "config": { "backend": "ddg", "max_results": 10 }
+}
+```
+
+The `config` block comes from the agent YAML and is passed transparently. The LLM never sees it, never sets it, and has no schema for it. The tool implementation reads `config` for its own use.
+
+Skills declare their supported config options in the SKILL.md frontmatter:
+```yaml
+config:
+  backend:
+    type: string
+    default: ddg
+    enum: [ddg, brave, serper, tavily, searxng]
+    description: "Search backend to use"
+  max_results:
+    type: integer
+    default: 10
+    description: "Maximum results to return"
+```
+
+---
+
+## Versioning
+
+**Bundled skills**: Version with the binary. Updating `agent-core` updates bundled skills. No independent version tracking.
+
+**Community skills** (in the `skills` repo): Semver via git tags.
+- `registry.json` includes a `latest` field per skill pointing to the recommended version tag
+- `agent-core skill install github` → resolves `latest` from `registry.json` → clones at that tag
+- `agent-core skill install github@1.2.0` → clones at `v1.2.0` tag
+- `agent-core skill update github` → re-resolves `latest`, replaces installed version
+
+**Local skills** (in `~/.agent-core/skills/`): No versioning. User manages their own files.
+
+**`registry.json` version fields:**
+```json
+{
+  "skills": {
+    "github": {
+      "latest": "1.2.0",
+      "versions": {
+        "1.2.0": { "tag": "v1.2.0", "sha": "abc123" },
+        "1.1.0": { "tag": "v1.1.0", "sha": "def456" }
+      },
+      "source": "github.com/[org]/skills",
+      "path": "github"
+    }
+  }
+}
+```
+
+---
+
+## Skill Testing
+
+`agent-core skill test` validates skill structure and runs tool test fixtures.
+
+### Three levels
+
+1. **Validate** — Does the SKILL.md parse? Is frontmatter valid? Do all `tools/*.json` schemas parse? Does every `.json` have a matching executable?
+2. **Eligibility** — Are the skill's declared dependencies (`bins`, `env`) available on this machine?
+3. **Run fixtures** — Execute tool subprocesses with test inputs from the `tests/` directory and check results.
+
+### Test fixture convention
+
+```
+skills/web_search/
+├── SKILL.md
+├── tools/
+│   ├── web_search.json
+│   └── web_search.sh
+└── tests/
+    ├── web_search.basic.json                 ← test input (required)
+    ├── web_search.basic.expected.json        ← expected output (optional)
+    ├── web_search.empty_query.json
+    └── web_search.empty_query.expected.json
+```
+
+**Naming**: `<tool_name>.<test_name>.json` for inputs, `<tool_name>.<test_name>.expected.json` for expectations.
+
+**Input file** — exactly what the tool subprocess receives on stdin:
+```json
+{
+  "tool_call_id": "test_001",
+  "name": "web_search",
+  "arguments": { "query": "golang concurrency" },
+  "config": { "backend": "ddg", "max_results": 5 }
+}
+```
+
+**Expected file** — pattern-matching assertions (not exact output match, because tool output varies):
+```json
+{
+  "is_error": false,
+  "content_contains": ["golang", "concurrency"],
+  "content_not_contains": ["error", "failed"],
+  "content_not_empty": true
+}
+```
+
+**Supported assertion fields:**
+| Field | Type | Meaning |
+|---|---|---|
+| `is_error` | bool | Tool result `is_error` must match |
+| `content_contains` | string[] | Each string must appear in `content` |
+| `content_not_contains` | string[] | None of these strings may appear in `content` |
+| `content_not_empty` | bool | `content` must be non-empty |
+| `content_matches` | string | `content` must match this regex |
+
+If no `.expected.json` exists, the test passes if the tool returns valid JSON with `is_error: false`.
+
+### CLI usage
+
+```bash
+# Full test: validate + eligibility + run all fixtures
+agent-core skill test ./skills/web_search/
+
+# Validate structure only (no tool execution)
+agent-core skill test ./skills/web_search/ --validate-only
+
+# Run a specific tool's fixtures only
+agent-core skill test ./skills/web_search/ --tool web_search
+
+# Run with a one-off input (no fixture file needed)
+agent-core skill test ./skills/web_search/ --tool web_search --input '{"query": "test"}'
+```
+
+### Output
+
+```
+$ agent-core skill test ./skills/web_search/
+
+Validating skill structure...
+  ✓ SKILL.md frontmatter valid
+  ✓ tools/web_search.json schema valid
+  ✓ tools/web_search.sh found and executable
+
+Checking eligibility...
+  ✓ No binary dependencies
+  ✓ No env var requirements (backend=ddg uses no API key)
+
+Running test fixtures...
+  ✓ web_search.basic         (1.2s) — content_contains: ✓ content_not_empty: ✓
+  ✓ web_search.empty_query   (0.3s) — is_error: ✓
+
+4/4 checks passed. Skill is ready.
+```
 
 ---
 

@@ -31,12 +31,12 @@ Each phase is labeled with the repo(s) it primarily lives in. See [repository-st
 
 ### Deliverables
 - [ ] `Tool` interface + `ToolEngine` with parallel execution
-- [ ] Built-in tools: `bash`, `http_request`, `file_read`, `file_write`
+- [ ] Built-in tools: `bash` (opt-out), `read_file`, `write_file`, `edit_file`, `list_dir`, `grep`, `http_fetch`
 - [ ] Subprocess tool runner (external tools via stdin/stdout JSON)
 - [ ] Tool sandboxing: path scope, network allowlist, timeout
 - [ ] Tool calling in the turn loop (native + prompt-guided fallback)
 - [ ] Skill loader: reads `SKILL.md`, injects into system prompt
-- [ ] First bundled skills: `github`, `web_search`, `summarize`
+- [ ] First bundled skills: `web_search`, `web_fetch`, `summarize`, `github`, `gitlab`, `report`, `send_email`
 - [ ] Loop detection (no-progress, ping-pong, failure streak)
 - [ ] Deferred-action detection + retry prompt
 - [ ] Credential scrubbing from tool output
@@ -128,13 +128,15 @@ An agent fires automatically on `0 9 * * 1` (Monday 9am) and POSTs its output to
 
 | Category | Skills |
 |---|---|
-| **Web** | `web_search`, `browser` (headless), `http_request` |
-| **Code** | `github`, `bash`, `file_ops` |
-| **Data** | `summarize`, `csv_reader`, `json_parser` |
-| **Communication** | `slack`, `discord`, `email_send` |
+| **Web** | `web_search`, `web_fetch`, `browser` (headless via MCP) |
+| **Code** | `github`, `gitlab` |
+| **Data** | `summarize`, `report` |
+| **Communication** | `send_email`, `slack`, `discord` |
 | **Productivity** | `notion`, `calendar`, `trello` |
 | **Monitoring** | `healthcheck`, `uptime_check`, `log_reader` |
 | **AI** | `image_gen`, `transcribe` |
+
+Core tools (`bash`, `read_file`, `write_file`, `edit_file`, `list_dir`, `grep`, `http_fetch`) are built into the binary — not skills.
 
 ### Deliverables
 - [ ] 15+ skills in the `skills` repo
@@ -200,7 +202,7 @@ Platform runs 20+ concurrent agents reliably with no run loss on restart.
 - [ ] Skills CRUD API
 - [ ] Skill Loader: reads SKILL.md, registers tools, injects into system prompt
 - [ ] `agent_skills` join table (ordered)
-- [ ] Bundled skills (start with 5): `web_search`, `summarize`, `http_request`, `file_ops`, `github`
+- [ ] Bundled skills (7): `web_search`, `web_fetch`, `summarize`, `github`, `gitlab`, `report`, `send_email`
 - [ ] Skill Hub UI: browse, search, filter skills
 - [ ] Agent Builder UI: skill picker + ordering
 - [ ] Skill detail page
@@ -258,10 +260,10 @@ Platform runs 20+ concurrent agents reliably with no run loss on restart.
 
 | Category | Skills |
 |---|---|
-| **Web** | `web_search`, `browser` (headless), `http_request` |
-| **Code** | `github` (issues, PRs, code), `bash`, `file_ops` |
-| **Data** | `summarize`, `csv_reader`, `json_parser` |
-| **Communication** | `slack`, `discord`, `email_send` |
+| **Web** | `web_search`, `web_fetch`, `browser` (headless via MCP) |
+| **Code** | `github`, `gitlab` |
+| **Data** | `summarize`, `report` |
+| **Communication** | `send_email`, `slack`, `discord` |
 | **Productivity** | `notion`, `calendar`, `trello` |
 | **Monitoring** | `healthcheck`, `uptime_check`, `log_reader` |
 | **AI** | `image_gen` (OpenAI DALL-E), `transcribe` (Whisper) |

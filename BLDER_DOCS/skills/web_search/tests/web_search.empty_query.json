@@ -1,0 +1,10 @@
+{
+  "tool_call_id": "test_002",
+  "name": "web_search",
+  "arguments": {
+    "query": ""
+  },
+  "config": {
+    "backend": "ddg"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "tool_call_id": "test_001",
+  "name": "web_fetch",
+  "arguments": {
+    "url": "https://go.dev/doc/effective_go",
+    "max_chars": 5000
+  },
+  "config": {}
+}

@@ -197,7 +197,7 @@ Platform tools (not from skills) are always available:
 | Tool | Description |
 |---|---|
 | `bash` | Execute shell commands |
-| `http_request` | Make HTTP GET/POST requests |
+| `http_fetch` | Make HTTP GET/POST requests |
 | `file_read` | Read files |
 | `file_write` | Write files |
 | `skill_load` | Load a skill's full instructions (compact mode only) |
@@ -226,12 +226,24 @@ agent-core skill audit ./my-skill/
 ```
 agent-core skill list                          List installed skills with eligibility
 agent-core skill install <source>             Install from any source
+agent-core skill install --from-config <yaml> Install all skills declared in an agent config
 agent-core skill remove <name>                Remove an installed skill
+agent-core skill update <name>                Update to latest version (community skills)
 agent-core skill audit <path>                 Security scan without installing
-agent-core skill new <name> --template <t>    Scaffold a new skill
+agent-core skill new <name> --template <t>    Scaffold a new skill (bash, python, go)
 agent-core skill templates                    List available scaffold templates
 agent-core skill test <path> [--tool <name>]  Test a skill locally
 ```
+
+**Install flags:**
+
+| Flag | Behavior |
+|---|---|
+| *(default)* | Prompt for each missing dependency (interactive) |
+| `--yes`, `-y` | Auto-accept all dependency installs (CI/CD, scripts) |
+| `--skip-deps` | Install skill files only, don't touch dependencies |
+
+Also accepts `AGENT_CORE_YES=1` env var as equivalent to `--yes`.
 
 **Install source formats:**
 
@@ -269,23 +281,115 @@ In compact mode, the `<instructions>` and `<tools>` blocks are omitted and a `<n
 
 ---
 
+## Per-Skill Configuration
+
+Skills accept configuration from the agent YAML. The LLM controls `arguments` (what to do); the human controls `config` (how). They never mix.
+
+```yaml
+# agent.yaml
+skills:
+  - github                       # simple — default config
+  - web_search:                  # config form
+      backend: ddg
+      max_results: 10
+```
+
+Config is passed to the tool subprocess on stdin as a separate `config` field — the LLM never sees it. See [skill-registry-deep-dive.md](../skill-registry-deep-dive.md#per-skill-configuration) for the full protocol.
+
+---
+
+## Versioning
+
+- **Bundled skills**: Version with the `agent-core` binary. No independent versioning.
+- **Community skills**: Semver via git tags. `registry.json` has a `latest` field per skill. `skill install github` resolves latest; `skill install github@1.2.0` pins.
+- **Local skills**: No versioning — user manages their own files.
+
+---
+
+## Skill Testing
+
+```bash
+agent-core skill test ./my-skill/                 # full: validate + eligibility + run fixtures
+agent-core skill test ./my-skill/ --validate-only  # structure check only
+agent-core skill test ./my-skill/ --tool search    # run specific tool's fixtures
+```
+
+Test fixtures live in `tests/` inside the skill:
+```
+tests/
+├── web_search.basic.json              ← test input
+└── web_search.basic.expected.json     ← pattern-match assertions
+```
+
+Expected output uses pattern matching (not exact match):
+```json
+{
+  "is_error": false,
+  "content_contains": ["result"],
+  "content_not_empty": true
+}
+```
+
+See [skill-registry-deep-dive.md](../skill-registry-deep-dive.md#skill-testing) for the full testing spec.
+
+---
+
+## Local Skills
+
+Users create skills directly on disk without going through the registry:
+
+```bash
+# Scaffold a new local skill
+agent-core skill new my-tool --template bash
+
+# Creates:
+# ~/.agent-core/skills/my-tool/
+# ├── SKILL.md
+# ├── tools/
+# │   ├── my_tool.json
+# │   └── my_tool.sh
+# └── tests/
+#     └── my_tool.basic.json
+```
+
+Local skills live in `~/.agent-core/skills/` and are referenced by name in agent YAML:
+
+```yaml
+skills:
+  - my-tool              # loaded from ~/.agent-core/skills/my-tool/
+  - github               # bundled — compiled into binary
+```
+
+**Resolution order**: When an agent references a skill by name, agent-core checks:
+1. Bundled skills (compiled in)
+2. Local skills (`~/.agent-core/skills/<name>/`)
+3. Not found → error with install hint
+
+Local skills can override bundled skills. If you have `~/.agent-core/skills/github/`, it takes priority over the bundled `github` — this lets users customize or patch bundled skills without waiting for a release.
+
+**Local skills are not versioned or tracked** — they're just directories on disk. The user manages them with normal file operations or `agent-core skill new` / `agent-core skill remove`.
+
+---
+
 ## Community Skills Repo
 
-The `skills` repository is a separate Git repo with community skills:
+The `skills` repository is a separate Git repo. Registry model is **Git-native**: the canonical ID for a community skill is its git URL. `registry.json` provides short-name resolution for curated skills.
 
 ```
 skills/
-├── registry.json          ← index of all skills
+├── registry.json          ← maps short names to git URLs + versions
 ├── CONTRIBUTING.md
-├── github/
-│   ├── SKILL.md
-│   └── tools/
-│       ├── gh_list_issues.json
-│       └── gh_list_issues.sh
 ├── web_search/
-├── weather/
-├── slack/
-└── ...
+│   ├── SKILL.md
+│   ├── tools/
+│   └── tests/
+├── github/
+├── gitlab/
+├── summarize/
+├── web_fetch/
+├── report/
+├── send_email/
+└── ...                    ← community contributions
 ```
 
 **`registry.json`** format:
@@ -293,15 +397,19 @@ skills/
 {
   "version": 1,
   "updated_at": "2026-02-28",
-  "skills": [
-    {
-      "name": "github",
-      "version": "1.2.0",
-      "description": "...",
+  "skills": {
+    "github": {
+      "latest": "1.2.0",
+      "description": "GitHub operations via gh CLI...",
       "tags": ["code", "vcs"],
-      "source": "github.com/[org]/skills/tree/main/github"
+      "source": "github.com/[org]/skills",
+      "path": "github",
+      "versions": {
+        "1.2.0": { "tag": "v1.2.0", "sha": "abc123" },
+        "1.1.0": { "tag": "v1.1.0", "sha": "def456" }
+      }
     }
-  ]
+  }
 }
 ```
 

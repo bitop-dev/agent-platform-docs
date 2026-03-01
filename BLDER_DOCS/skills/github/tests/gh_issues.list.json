@@ -1,0 +1,10 @@
+{
+  "tool_call_id": "test_001",
+  "name": "gh_issues",
+  "arguments": {
+    "repo": "cli/cli",
+    "state": "open",
+    "limit": 3
+  },
+  "config": {}
+}

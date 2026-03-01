@@ -1,0 +1,5 @@
+{
+  "is_error": false,
+  "content_not_empty": true,
+  "content_contains": ["http"]
+}

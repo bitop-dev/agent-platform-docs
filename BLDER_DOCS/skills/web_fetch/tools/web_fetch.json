@@ -1,0 +1,19 @@
+{
+  "name": "web_fetch",
+  "description": "Fetch a webpage and extract readable content as clean markdown. Strips navigation, ads, and boilerplate.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "url": {
+        "type": "string",
+        "description": "The URL to fetch"
+      },
+      "max_chars": {
+        "type": "integer",
+        "description": "Maximum characters to return. Truncates long pages.",
+        "default": 20000
+      }
+    },
+    "required": ["url"]
+  }
+}

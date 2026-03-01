@@ -1,0 +1,23 @@
+{
+  "name": "glab_mrs",
+  "description": "List or search GitLab merge requests for a project. Returns MR number, title, author, state, and approval status.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "repo": {
+        "type": "string",
+        "description": "Project path in owner/repo format"
+      },
+      "state": {
+        "type": "string",
+        "enum": ["opened", "closed", "merged", "all"],
+        "default": "opened"
+      },
+      "limit": {
+        "type": "integer",
+        "default": 20
+      }
+    },
+    "required": ["repo"]
+  }
+}

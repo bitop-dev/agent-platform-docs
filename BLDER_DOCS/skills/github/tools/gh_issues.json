@@ -1,0 +1,29 @@
+{
+  "name": "gh_issues",
+  "description": "List or search GitHub issues for a repository. Returns issue number, title, state, assignees, and labels.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "repo": {
+        "type": "string",
+        "description": "Repository in owner/repo format"
+      },
+      "state": {
+        "type": "string",
+        "enum": ["open", "closed", "all"],
+        "description": "Filter by issue state",
+        "default": "open"
+      },
+      "label": {
+        "type": "string",
+        "description": "Filter by label name (optional)"
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Maximum issues to return",
+        "default": 20
+      }
+    },
+    "required": ["repo"]
+  }
+}

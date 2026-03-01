@@ -459,9 +459,18 @@ default_mission: |
   Group by: in-progress, blocked, recently closed.
 
 # Skills loaded before the agent runs
+# Simple form (default config):
+#   - github
+# Config form (per-skill settings passed to tools via stdin config field):
+#   - web_search:
+#       backend: brave
+#       max_results: 5
 skills:
-  - path: ./skills/github/SKILL.md     # local skill
-  - path: ./skills/summarize/SKILL.md
+  - github
+  - summarize
+  - web_search:
+      backend: ddg              # ddg (default), brave, serper, tavily, searxng
+      max_results: 10
 
 # Tools available to the agent
 # Absence of a tool from core: = disabled. bash is opt-out (on by default).
@@ -537,12 +546,30 @@ Commands:
   run          Run an agent with a mission (non-interactive)
   chat         Interactive multi-turn chat with an agent
   tools        List tools configured for an agent
+  skill        Skill management (list, install, remove, new, test, audit)
   mcp          MCP server management (list, test)
   sessions     Session management (list, show, clear)
   models       List available models and their costs
   validate     Validate agent config file
   providers    List available LLM providers
   version      Show version info
+
+Skill subcommands:
+  skill list                          List installed skills with eligibility
+  skill install <source>             Install from git URL, local dir, or registry
+  skill install --from-config <yaml> Install all skills declared in agent config
+  skill update <name>                Update community skill to latest version
+  skill remove <name>                Remove an installed skill
+  skill new <name> --template <t>    Scaffold a new skill (bash, python, go)
+  skill test <path>                  Run test fixtures, validate structure
+  skill test <path> --validate-only  Validate structure without running tools
+  skill audit <path>                 Security scan without installing
+  skill templates                    List available scaffold templates
+
+Skill install flags:
+  --yes, -y        Auto-accept all dependency installs (for CI/CD)
+  --skip-deps      Install skill files only, don't install dependencies
+  (also: AGENT_CORE_YES=1 env var = --yes)
 
 Flags (run + chat):
   --config, -c   Path to agent YAML config (default: ./agent.yaml)

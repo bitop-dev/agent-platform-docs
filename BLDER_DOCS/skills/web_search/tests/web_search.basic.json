@@ -1,0 +1,12 @@
+{
+  "tool_call_id": "test_001",
+  "name": "web_search",
+  "arguments": {
+    "query": "golang error handling best practices",
+    "max_results": 5
+  },
+  "config": {
+    "backend": "ddg",
+    "max_results": 10
+  }
+}
