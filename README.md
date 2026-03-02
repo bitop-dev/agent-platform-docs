@@ -2,7 +2,7 @@
 
 An AI agent platform for building, running, and managing autonomous AI agents. Create agents with custom personas and skills, run them from the CLI or browser, stream output in real time, and manage everything through a web portal.
 
-> **Status**: Feature-complete. All 10 phases done (0–9 + WASM sandbox). ~170 source files, 190+ tests, 5 repos on GitHub.
+> **Status**: Feature-complete. All 12 phases done (0–9 + WASM sandbox + Credentials + AI Teams + CI/CD). ~180 source files, 190+ tests, 5 repos on GitHub.
 
 ---
 
@@ -11,8 +11,8 @@ An AI agent platform for building, running, and managing autonomous AI agents. C
 | Repository | Language | Description | Status |
 |---|---|---|---|
 | [**agent-core**](https://github.com/bitop-dev/agent-core) | Go | Standalone CLI binary + `pkg/agent` library | ✅ 88 files, 14K lines, 171 tests |
-| [**agent-platform-api**](https://github.com/bitop-dev/agent-platform-api) | Go | REST API server (Fiber, sqlc, 62 endpoints) | ✅ 46 files, 8.6K lines, 22 tests |
-| [**agent-platform-web**](https://github.com/bitop-dev/agent-platform-web) | TypeScript | React + Vite + shadcn/ui web portal | ✅ 36 files, 14 pages |
+| [**agent-platform-api**](https://github.com/bitop-dev/agent-platform-api) | Go | REST API server (Fiber, sqlc, 70 endpoints) | ✅ 48 files, 10K lines, 22 tests |
+| [**agent-platform-web**](https://github.com/bitop-dev/agent-platform-web) | TypeScript | React + Vite + shadcn/ui web portal | ✅ 38 files, 16 pages |
 | [**agent-platform-skills**](https://github.com/bitop-dev/agent-platform-skills) | Go → WASM | Community skill registry (git-native) | ✅ 10 skills (4 WASM + 6 instruction) |
 | [**agent-platform-docs**](https://github.com/bitop-dev/agent-platform-docs) (this repo) | Markdown | Architecture, design docs, diagrams | ✅ Comprehensive |
 
@@ -25,13 +25,13 @@ An AI agent platform for building, running, and managing autonomous AI agents. C
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │          platform-web (React + Vite + shadcn/ui)            │
-│    Dashboard · Agents · Runs · Skills · Teams · Schedules   │
-│    Audit Log · API Keys · OAuth Login                       │
+│    Dashboard · Agents · Runs · AI Teams · Skills · Schedules│
+│    Credentials · Audit Log · API Keys · OAuth Login         │
 └────────────────────────────┬────────────────────────────────┘
                              │ REST + WebSocket
 ┌────────────────────────────▼────────────────────────────────┐
 │                platform-api (Go/Fiber)                      │
-│  JWT + OAuth · 62 endpoints · RBAC · Audit (18 actions)     │
+│  JWT + OAuth · 70 endpoints · RBAC · Audit (21 actions)     │
 │  WebSocket Hub · Registry Sync · Scheduler · Prometheus     │
 └──────┬────────────────────────────┬─────────────────────────┘
        │ imports pkg/agent          │ syncs registry.json
@@ -104,12 +104,15 @@ Standalone CLI binary that runs AI agents with tool calling, sandboxed skills, a
 
 Go REST API server wrapping agent-core with persistence, auth, and real-time streaming.
 
-- **62 REST endpoints** with JWT auth, OAuth (GitHub + Google), rate limiting, request IDs
+- **70 REST endpoints** with JWT auth, OAuth (GitHub + Google), rate limiting, request IDs
 - **Run execution**: async goroutine pool, WASM-sandboxed skill tools, WebSocket live streaming
+- **AI Teams (Workflows)**: multi-agent DAG pipelines, dependency resolution, template variable substitution
+- **Skill credentials**: per-user encrypted secrets (GITHUB_TOKEN, etc.) auto-injected into sandbox EnvVars
 - **Scheduling**: cron/interval/one-shot with overlap policies (skip, queue, parallel)
 - **Teams**: RBAC (owner/admin/member/viewer), invitations, team-scoped agents/runs
-- **Audit logging**: 18 action types across all state-changing operations
+- **Audit logging**: 21 action types across all state-changing operations
 - **API key management**: AES-256-GCM encryption at rest
+- **CI/CD**: GitHub Actions (build, test, vet, lint, sqlc check, Docker build)
 - **Observability**: `/health`, `/readyz`, `/metrics` (Prometheus text format)
 - **Graceful shutdown**: drain scheduler → drain runner → close DB → shutdown server
 - **Docker**: multi-stage build, non-root user, healthcheck
@@ -118,7 +121,7 @@ Go REST API server wrapping agent-core with persistence, auth, and real-time str
 
 React SPA with "AgentOps Command Center" industrial theme.
 
-- **14 pages**: dashboard, agents (list/detail/new/edit), runs (list/detail), skills, teams, schedules, audit log, API keys, login, register
+- **16 pages**: dashboard, agents (list/detail/new/edit), runs (list/detail), AI Teams (workflows), skills, teams, schedules, credentials, audit log, API keys, login, register
 - **Industrial design**: dark charcoal + amber/gold, LED indicators, scan-line overlays, JetBrains Mono
 - **OAuth**: GitHub + Google buttons, avatar display in sidebar
 - **Live streaming**: WebSocket run output with collapsed event timeline
