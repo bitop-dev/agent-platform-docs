@@ -11,9 +11,9 @@ An AI agent platform for building, running, and managing autonomous AI agents. C
 | Repository | Language | Description | Status |
 |---|---|---|---|
 | [**agent-core**](https://github.com/bitop-dev/agent-core) | Go | Standalone CLI binary + `pkg/agent` library | ✅ 88 files, 14K lines, 171 tests |
-| [**agent-platform-api**](https://github.com/bitop-dev/agent-platform-api) | Go | REST API server (Fiber, sqlc, 70 endpoints) | ✅ 48 files, 10K lines, 22 tests |
-| [**agent-platform-web**](https://github.com/bitop-dev/agent-platform-web) | TypeScript | React + Vite + shadcn/ui web portal | ✅ 38 files, 16 pages |
-| [**agent-platform-skills**](https://github.com/bitop-dev/agent-platform-skills) | Go → WASM | Community skill registry (git-native) | ✅ 10 skills (4 WASM + 6 instruction) |
+| [**agent-platform-api**](https://github.com/bitop-dev/agent-platform-api) | Go | REST API server (Fiber, sqlc, 75 endpoints) | ✅ 51 files, 10.6K lines, 22 tests |
+| [**agent-platform-web**](https://github.com/bitop-dev/agent-platform-web) | TypeScript | React + Vite + shadcn/ui web portal | ✅ 37 files, 16 pages, 5.1K lines |
+| [**agent-platform-skills**](https://github.com/bitop-dev/agent-platform-skills) | Go → WASM | Community skill registry (git-native, `requires_env`) | ✅ 10 skills (4 WASM + 6 instruction) |
 | [**agent-platform-docs**](https://github.com/bitop-dev/agent-platform-docs) (this repo) | Markdown | Architecture, design docs, diagrams | ✅ Comprehensive |
 
 ---
@@ -31,7 +31,7 @@ An AI agent platform for building, running, and managing autonomous AI agents. C
                              │ REST + WebSocket
 ┌────────────────────────────▼────────────────────────────────┐
 │                platform-api (Go/Fiber)                      │
-│  JWT + OAuth · 70 endpoints · RBAC · Audit (21 actions)     │
+│  JWT + OAuth · 75 endpoints · RBAC · Audit (21 actions)     │
 │  WebSocket Hub · Registry Sync · Scheduler · Prometheus     │
 └──────┬────────────────────────────┬─────────────────────────┘
        │ imports pkg/agent          │ syncs registry.json
@@ -104,7 +104,7 @@ Standalone CLI binary that runs AI agents with tool calling, sandboxed skills, a
 
 Go REST API server wrapping agent-core with persistence, auth, and real-time streaming.
 
-- **70 REST endpoints** with JWT auth, OAuth (GitHub + Google), rate limiting, request IDs
+- **75 REST endpoints** with JWT auth, OAuth (GitHub + Google), rate limiting, request IDs
 - **Run execution**: async goroutine pool, WASM-sandboxed skill tools, WebSocket live streaming
 - **AI Teams (Workflows)**: multi-agent DAG pipelines, dependency resolution, template variable substitution
 - **Skill credentials**: per-user encrypted secrets (GITHUB_TOKEN, etc.) auto-injected into sandbox EnvVars
@@ -126,6 +126,9 @@ React SPA with "AgentOps Command Center" industrial theme.
 - **OAuth**: GitHub + Google buttons, avatar display in sidebar
 - **Live streaming**: WebSocket run output with collapsed event timeline
 - **Team management**: create teams, invite members, assign agents to teams
+- **Editable API keys**: update label, base URL, rotate key, set default
+- **Custom model names**: type any model ID, not limited to preset list
+- **Dynamic credentials**: auto-discovers required secrets from installed skills
 - **Docker**: multi-stage Bun→nginx build, SPA routing, API/WS proxy
 
 ### agent-platform-skills ✅
